@@ -1,0 +1,10 @@
+import "Clases/hola.NM";
+
+class Adios{
+	hola h=new hola(2);
+	hola h2=new hola(3);
+	void main(){
+		h.geta();
+		h2.geta();
+	}
+}

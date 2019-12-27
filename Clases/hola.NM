@@ -1,0 +1,9 @@
+class hola{
+	int a=1;
+	hola(int a){
+		this.a=a;
+	}
+	void geta(){
+		println( this.a ); 
+	}
+}

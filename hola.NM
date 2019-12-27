@@ -1,0 +1,5 @@
+class hola{
+	void main(){
+		println("probando el inicio");
+	}
+}
