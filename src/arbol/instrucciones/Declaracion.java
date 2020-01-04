@@ -5,11 +5,13 @@
  */
 package arbol.instrucciones;
 
+import arbol.expresiones.Arreglos;
 import arbol.Expresion;
 import arbol.Instruccion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Simbolo;
 import arbol.entornos.Tipo;
+import arbol.expresiones.Literal;
 import proyectcompi1.ProyectCompi1;
 import proyectcompi1.cError;
 
@@ -21,13 +23,11 @@ public class Declaracion extends Instruccion {
 
     public Tipo tipo;
     public String id;
-    public String id2;
     public Expresion valor;
 
     public Declaracion(Tipo tipo, String id, Expresion valor, int linea, int columna) {
         this.tipo = tipo;
         this.id = id;
-        this.id2="";
         this.valor = valor;
         this.linea = linea;
         this.columna = columna;
@@ -37,17 +37,6 @@ public class Declaracion extends Instruccion {
     public Declaracion(Tipo tipo, String id, int linea, int columna) {
         this.tipo = tipo;
         this.id = id;
-        this.id2="";
-        this.valor = null;
-        this.linea = linea;
-        this.columna = columna;
-        this.Instruccion="declaracion";
-    }
-    
-    public Declaracion(Tipo tipo,String id1,String id2,int linea,int columna){
-        this.tipo = tipo;
-        this.id = id1;
-        this.id2=id2;
         this.valor = null;
         this.linea = linea;
         this.columna = columna;
@@ -56,10 +45,23 @@ public class Declaracion extends Instruccion {
     
     @Override
     public Object ejecutar(Entorno ent) {
-        if (valor != null) { 
-            Expresion resultado = valor.getValor(ent);
+        if (this.tipo.Dimension>-1) {
+            if (valor!=null && valor.getClass()==Arreglos.class) {
+                valor.getValor(ent);
+                if(valor.tipo.tipo==tipo.tipo){
+                    Simbolo sim=new Simbolo(tipo,valor);
+                    ent.insertar(id, sim, linea, columna, "El arreglo");
+                }
+            }else if(valor==null || valor.tipo.tipo==Tipo.EnumTipo.nulo){ 
+                ent.insertar(id, new Simbolo(tipo, null), linea, columna, Instruccion);
+            }else{
+                cError errora=new cError("Semantico","'"+id+"' asignacion incorrecta para un arreglo",linea,columna);
+                ProyectCompi1.errores.add(errora); 
+            }
+        }else if (valor != null) { 
             Simbolo simbolo;
             boolean error=true;
+            Expresion resultado = valor.getValor(ent);
             switch (tipo.tipo) { 
                 case entero:
                     switch (resultado.tipo.tipo) {
@@ -119,13 +121,27 @@ public class Declaracion extends Instruccion {
                             break;
                     }
                     break;
+                case nulo:
+                    switch(valor.tipo.tipo){
+                        case clase:
+                            if (tipo.tr == null ? valor.tipo.tr == null : tipo.tr.equals(valor.tipo.tr)) {
+                                simbolo=new Simbolo(new Tipo(Tipo.EnumTipo.clase,tipo.tr,-1),valor);
+                                ent.insertar(id, simbolo, linea, columna, "La variable");
+                                error=false;
+                                break;
+                            }
+                        case nulo:
+                            simbolo=new Simbolo(new Tipo(Tipo.EnumTipo.nulo,tipo.tr,-1),null);
+                            ent.insertar(id, simbolo, linea, columna, "La variable");
+                            error=false;
+                            break;
+                    }
+                    break;
             }
             if (error) {
                 cError errora=new cError("Semantico","'"+id+"' asignacion de tipos incompatibles "+tipo.tipo+" no se puede convertir a "+resultado.tipo.tipo,linea,columna);
                 ProyectCompi1.errores.add(errora); 
             }
-        } else if(this.id2.equals("")){
-            
         }else{ 
             switch (tipo.tipo) {
                 case entero:
@@ -143,10 +159,14 @@ public class Declaracion extends Instruccion {
                 case cadena:
                     ent.insertar(id, new Simbolo(tipo, ""), linea, columna, "La variable");
                     break;
+                case nulo:
+                    ent.insertar(id, new Simbolo(new Tipo(Tipo.EnumTipo.nulo,tipo.tr,-1),null), linea, columna, "La variable");
+                    break;
             }
         }
         return null;
     }
+    
 
     @Override
     public String graficar(String nonode,String siguiente) {

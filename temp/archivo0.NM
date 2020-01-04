@@ -1,11 +1,6 @@
-import "Clases/hola.NM";
-
-class Adios{
-	hola h=new hola(2);
-	hola h2;
+class hola{
+	int[][] h=new int[2][2];
 	void main(){
-		h2 = new hola(3);
-		h.geta();
-		h2.geta();
+			
 	}
 }

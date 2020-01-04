@@ -37,9 +37,9 @@ public class Importar extends Instruccion{
                 pars = new analizadores.parser(new analizadores.Lexico(new FileInputStream(path)));
                 pars.parse();
                 arbol = pars.AST;
-                if (arbol != null) { 
-                    arbol.Ejecutar();
+                if (arbol != null) {
                     ProyectCompi1.L_clases.put(((Clase)arbol.Clase).nombre, (Clase)arbol.Clase);
+                    arbol.Ejecutar();
                     Entorno temp=ent;
                     while(temp.anterior!=null){
                         temp=temp.anterior;

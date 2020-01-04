@@ -9,6 +9,8 @@ import arbol.Expresion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Literal;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -28,7 +30,10 @@ public class Not extends Expresion {
         
         Expresion exp1 = this.izquierdo.getValor(ent);
         
-        String str1 = exp1.valor.toString();
+        String str1=null;
+        if (exp1.valor!=null) {
+            str1 = exp1.valor.toString();
+        }
         
         Boolean resultado;
         
@@ -37,6 +42,8 @@ public class Not extends Expresion {
                 resultado = (!Boolean.parseBoolean(str1) ) ;
                 return new Literal (new Tipo (Tipo.EnumTipo.booleano), resultado.toString());
         }
+        cError errora=new cError("Semantico","No se puede negar "+exp1.tipo.tipo,linea,columna);
+        ProyectCompi1.errores.add(errora);
         return new Literal(new Tipo(Tipo.EnumTipo.error) , "@Error@");
     }
 }

@@ -9,6 +9,8 @@ import arbol.Expresion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Literal;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -35,8 +37,11 @@ public class Igual extends Expresion {
         Expresion exp1 = this.izquierdo.getValor(ent);
         Expresion exp2 = this.derecho.getValor(ent);
         
-        String str1 = exp1.valor.toString();
-        String str2 = exp2.valor.toString();
+        String str1=null,str2=null;
+        if (exp1.valor!=null && exp2.valor!=null) {
+            str1 = exp1.valor.toString();
+            str2 = exp2.valor.toString();
+        }
         Literal literal = new Literal(new Tipo(Tipo.EnumTipo.error) , "@Error@");
         Boolean comp;
         
@@ -102,7 +107,22 @@ public class Igual extends Expresion {
                         literal = new Literal (new Tipo (Tipo.EnumTipo.booleano), comp.toString()) ;
                         break;
                 }
-        }   
+                break;
+            case nulo:
+            case clase:
+                switch(exp2.tipo.tipo){
+                    case nulo:
+                    case clase:
+                        comp = exp1.tipo.tipo==Tipo.EnumTipo.nulo && exp2.tipo.tipo==Tipo.EnumTipo.nulo;
+                        literal = new Literal (new Tipo (Tipo.EnumTipo.booleano), comp.toString()) ;
+                        break;   
+                }
+                break;
+        } 
+        if (literal.tipo.tipo==Tipo.EnumTipo.error) {
+            cError errora=new cError("Semantico","No se puede hacer igualacion "+exp1.tipo.tipo+" entre "+exp2.tipo.tipo,linea,columna);
+            ProyectCompi1.errores.add(errora);
+        }
         return literal;
     }
 }

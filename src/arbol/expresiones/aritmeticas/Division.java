@@ -9,6 +9,8 @@ import arbol.Expresion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Literal;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -32,9 +34,11 @@ public class Division extends Expresion {
         Expresion exp1 = this.izquierda.getValor(ent);
         Expresion exp2 = this.derecha.getValor(ent);
         
-        String str1 = exp1.valor.toString();
-        String str2 = exp2.valor.toString();
-        
+        String str1=null,str2=null;
+        if (exp1.valor!=null && exp2.valor!=null) {
+            str1 = exp1.valor.toString();
+            str2 = exp2.valor.toString();
+        }
         Literal literal=new Literal (new Tipo (Tipo.EnumTipo.error) , "@@Error");
         
         switch (exp1.tipo.tipo) {
@@ -85,6 +89,10 @@ public class Division extends Expresion {
                         literal= new Literal (new Tipo (Tipo.EnumTipo.entero), divchar);
                         break;
                 }
+        }
+        if (literal.tipo.tipo==Tipo.EnumTipo.error) {
+            cError errora=new cError("Semantico","No se puede dividir "+exp1.tipo.tipo+" entre "+exp2.tipo.tipo,linea,columna);
+            ProyectCompi1.errores.add(errora);
         }
         return literal;
     }

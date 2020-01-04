@@ -14,10 +14,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 import proyectcompi1.ProyectCompi1;
 import proyectcompi1.cError;
 
@@ -27,15 +24,14 @@ import proyectcompi1.cError;
  */
 public class Entorno {
     public Entorno anterior;
-    public Entorno Global;
     public String nombre;
     public HashMap <String , Simbolo> tabla;
     public String archivo;
     
-    public Entorno (String nombre,Entorno anterior,Entorno Global) {
+    public Entorno (String nombre,Entorno anterior) {
+        this.nombre=nombre;
         this.anterior = anterior;
         this.tabla = new HashMap<>();
-        this.Global=Global;
     }
     
     public void insertar (String nombre, Simbolo sim, int linea, int columna, String cadenaError) {
@@ -49,37 +45,27 @@ public class Entorno {
     
     public void Constructor(){
         boolean constructor=false;
-        for (Simbolo var : this.Global.tabla.values()) {
+        for (Simbolo var : this.tabla.values()) {
             if(var.tipo.tipo==Tipo.EnumTipo.contructor){
                 constructor=true;
+                break;
             }
         }
         if (!constructor) {
             SimboloMF nuevoc=new SimboloMF(new Tipo(Tipo.EnumTipo.contructor),nombre);
             nuevoc.bloque=new Instrucciones(new LinkedList());
-            this.Global.insertar(this.Global.nombre+"$", nuevoc, 0, 0, "El constructor");
-        }
-    }
-    
-    public void Constructor(int linea,int columna){
-        if (this.Global.tabla.containsKey(this.Global.nombre+"$")) {
-            Simbolo sim=this.Global.tabla.get(this.Global.nombre+"$");
-            Entorno cent=new Entorno("constructor",this,this.Global);
-            ((SimboloMF)sim).getBloque().ejecutar(cent);    
-        }else{
-            cError error=new cError("Semantico","Parametros neceesarios para inicializar clase",linea,columna);
-            ProyectCompi1.errores.add(error);
+            this.insertar(this.nombre+"$", nuevoc, 0, 0, "El constructor");
         }
     }
     
     public void Constructor(LinkedList<Expresion> param,int linea,int columna){
-        String strcons=this.Global.nombre+"$";
+        String strcons=this.nombre+"$";
         for(Expresion pa:param){
             strcons+=pa.tipo.tipo.toString();
         }
-        if (this.Global.tabla.containsKey(strcons)) {
-            Simbolo sim=this.Global.tabla.get(strcons);
-            Entorno cent=new Entorno("constructor",this,this.Global);
+        if (this.tabla.containsKey(strcons)) {
+            Simbolo sim=this.tabla.get(strcons);
+            Entorno cent=new Entorno("constructor",this);
             int iterador=0;
             for (Instruccion id:((SimboloMF)sim).getParametros()) {
                 ((Declaracion)id).valor=param.get(iterador);
@@ -93,10 +79,6 @@ public class Entorno {
         }
     }
     
-    public void Constructor(LinkedList<Expresion> param){
-        
-    }
-    
     public Simbolo buscar (String nombre, int linea, int columna, String cadenaError) {
         Simbolo sim=null;
         boolean NoVar=true;
@@ -108,12 +90,8 @@ public class Entorno {
             }
         }
         if (NoVar) {
-            if (this.Global.tabla.containsKey(nombre)) {
-                sim=this.Global.tabla.get(nombre);
-            }else{
-                cError error=new cError("Semantico",cadenaError + " '" + "' no existe",linea,columna);
-                proyectcompi1.ProyectCompi1.errores.add(error);
-            }
+            cError error=new cError("Semantico",cadenaError + " '" + "' no existe",linea,columna);
+            proyectcompi1.ProyectCompi1.errores.add(error);
         }
         return sim;
     }
@@ -122,17 +100,6 @@ public class Entorno {
         Simbolo sim=null;
         if (this.tabla.containsKey(nombre)) {
             sim=this.tabla.get(nombre);
-        }
-        return sim;
-    }
-    
-    public Simbolo buscarG(String nombre,int linea,int columna,String cadenaError){
-        Simbolo sim=null;
-        if (this.tabla.containsKey(nombre)) {
-            sim=this.Global.tabla.get(nombre);
-        }else{
-            cError error=new cError("Semantico",cadenaError + " '" + "' no existe",linea,columna);
-            proyectcompi1.ProyectCompi1.errores.add(error);
         }
         return sim;
     }

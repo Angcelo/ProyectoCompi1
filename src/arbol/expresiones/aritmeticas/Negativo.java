@@ -9,6 +9,8 @@ import arbol.Expresion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Literal;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -28,7 +30,10 @@ public class Negativo extends Expresion{
     public Expresion getValor(Entorno ent) {
         Expresion exp = this.e.getValor(ent);
         
-        String str = exp.valor.toString();
+        String str=null;
+        if (exp.valor!=null) {
+            str = exp.valor.toString();
+        }
         Literal literal= new Literal (new Tipo(Tipo.EnumTipo.error ) , "@Error@");        
         
         switch (exp.tipo.tipo) {
@@ -47,6 +52,10 @@ public class Negativo extends Expresion{
                 literal = new Literal (new Tipo (Tipo.EnumTipo.entero), restachar) ;
                 break;
                 
+        }
+        if (literal.tipo.tipo==Tipo.EnumTipo.error) {
+            cError errora=new cError("Semantico","No se puede aplicar negatico a "+exp.tipo.tipo,linea,columna);
+            ProyectCompi1.errores.add(errora);
         }
         return literal;  
     }

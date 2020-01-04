@@ -6,13 +6,14 @@
 package proyectcompi1;
 
 import arbol.AST;
+import arbol.instrucciones.Clase;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -201,7 +202,6 @@ public class fmrPrincipal extends javax.swing.JFrame {
         selectorArchivos.setFileFilter(filtro);
         selectorArchivos.showOpenDialog(this);
         File archivo = selectorArchivos.getSelectedFile();
-        System.out.println(archivo.getName());
         String texto="";
         if ((archivo != null) || !(archivo.getName().equals(""))) {
             try {
@@ -210,7 +210,6 @@ public class fmrPrincipal extends javax.swing.JFrame {
                 while((linea=br.readLine())!=null){
                     texto+=linea+"\n";
                 }
-                System.out.println(texto);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(fmrPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -247,8 +246,6 @@ public class fmrPrincipal extends javax.swing.JFrame {
                     fmrPrincipal.url=temp;
                     fmrPrincipal.nombre=temp2;
                     Pestañas.setTitleAt(Pestañas.getSelectedIndex(), archivo.getName());
-                    System.out.println(fmrPrincipal.url);
-                    System.out.println(fmrPrincipal.nombre);
                     JOptionPane.showMessageDialog(null, "Archivo Guardado"); 
                 }
                 bw.close();
@@ -269,7 +266,6 @@ public class fmrPrincipal extends javax.swing.JFrame {
                         }
                     }
                     url=temp;
-                    System.out.println(url);
                     JOptionPane.showMessageDialog(null, "Archivo Guardado"); 
                 } catch (IOException ex1) {
                     Logger.getLogger(fmrPrincipal.class.getName()).log(Level.SEVERE, null, ex1);
@@ -283,7 +279,6 @@ public class fmrPrincipal extends javax.swing.JFrame {
         if (nombreArchivo.contains(".NM")) {
             this.addHoja(nombreArchivo);
         }else{
-            System.out.println("No posee ectension");
             this.addHoja(nombreArchivo+".NM");
         }
     }//GEN-LAST:event_MCrearActionPerformed
@@ -294,25 +289,12 @@ public class fmrPrincipal extends javax.swing.JFrame {
         ProyectCompi1.imagenes.clear();
         Salidatxt.setText("");
         String texto=textos.get(Pestañas.getSelectedIndex()).getText();
-        File carpetatemp=new File("temp");
-        carpetatemp.mkdir();
-        String tempurl="temp/archivo"+Pestañas.getSelectedIndex()+".NM";
-        File temp=new File(tempurl);
-        try {
-            BufferedWriter bw=new BufferedWriter(new FileWriter(temp));
-            bw.write(texto);
-            bw.close();
-        } catch (IOException ex) {
-            Logger.getLogger(fmrPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        this.interpretar(tempurl);
-        if (ProyectCompi1.errores.isEmpty()) {
-            Salidatxt.setText(ProyectCompi1.Salida);
-        }else{
-            ProyectCompi1.errores.stream().map((error) -> error.tipo+" | "+error.error+" | "+error.linea+" ,"+error.columna+"\n").forEachOrdered((textoerror) -> {
-                Salidatxt.setText(Salidatxt.getText()+textoerror);
-            });
-        }
+        this.interpretar(texto);
+        Salidatxt.setText(ProyectCompi1.Salida);
+        
+        ProyectCompi1.errores.stream().map((error) -> error.tipo+" | "+error.error+" | "+error.linea+" ,"+error.columna+"\n").forEachOrdered((textoerror) -> {
+            Salidatxt.setText(Salidatxt.getText()+textoerror);
+        });
     }//GEN-LAST:event_MEjecutarActionPerformed
 
     private void MGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MGuardarActionPerformed
@@ -460,18 +442,19 @@ public class fmrPrincipal extends javax.swing.JFrame {
         Pestañas.addTab(nombre,new JScrollPane(textos.get(textos.size()-1)));
     }
     
-    public void interpretar(String path) {
+    public void interpretar(String texto) {
         
         
         analizadores.parser pars;
 
         AST arbol;
         try {
-            pars = new analizadores.parser(new analizadores.Lexico(new FileInputStream(path)));
+            pars = new analizadores.parser(new analizadores.Lexico(new ByteArrayInputStream(texto.getBytes())));
             pars.parse();
             arbol = pars.AST;
             
             if (arbol != null) { 
+                ProyectCompi1.L_clases.put(((Clase)arbol.Clase).nombre, (Clase)arbol.Clase);
                 arbol.Ejecutar();
                 arbol.Inicio();
             } else {

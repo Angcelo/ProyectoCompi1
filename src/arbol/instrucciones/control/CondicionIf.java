@@ -9,9 +9,8 @@ import arbol.Expresion;
 import arbol.Instruccion;
 import arbol.entornos.Entorno;
 import static arbol.entornos.Tipo.EnumTipo.booleano;
-import arbol.instrucciones.Break;
-import arbol.instrucciones.Continue;
-import java.util.ArrayList;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -36,21 +35,23 @@ public class CondicionIf extends Instruccion  {
     }
     
     @Override
-    public ArrayList<Object> ejecutar(Entorno ent) {
-        ArrayList<Object> retornos=new ArrayList();
+    public Object ejecutar(Entorno ent) {
+        Object retornos=null;
         Expresion condicion_ = this.condicion.getValor(ent);
         
         if (condicion_.tipo.tipo == booleano) {
             boolean ejecutar = Boolean.parseBoolean(condicion_.valor.toString());
             if (ejecutar) {
-                retornos.add(true);
-                Entorno nuevo = new Entorno("if",ent,ent.Global);
-                retornos.add(this.bloque.ejecutar(nuevo));
+                Entorno nuevo = new Entorno("if",ent);
+                retornos = this.bloque.ejecutar(nuevo);
+                this.ejecutado=true;
                 return retornos;
             }
-        }    
-        retornos.add(false);
-        retornos.add(null);
+        }else{
+            cError errora=new cError("Semantico","Se esperaba valor booleano",linea,columna);
+            ProyectCompi1.errores.add(errora);
+        }  
+        this.ejecutado=false;
         return retornos;
     }
 }

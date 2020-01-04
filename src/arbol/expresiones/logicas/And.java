@@ -9,6 +9,8 @@ import arbol.Expresion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Literal;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -30,19 +32,27 @@ public class And extends Expresion{
         Expresion exp1 = this.izquierdo.getValor(ent);
         Expresion exp2 = this.derecho.getValor(ent);
         
-        String str1 = exp1.valor.toString();
-        String str2 = exp2.valor.toString();
+        String str1=null,str2=null;
+        if (exp1.valor!=null && exp2.valor!=null) {
+            str1 = exp1.valor.toString();
+            str2 = exp2.valor.toString();
+        }
         
         Boolean resultado;
         
         switch (exp1.tipo.tipo) {
             case booleano:
+                if (!Boolean.parseBoolean(str1)) {
+                    return new Literal (new Tipo (Tipo.EnumTipo.booleano), false);
+                }
                 switch (exp2.tipo.tipo) {
                     case booleano:
                         resultado = Boolean.parseBoolean(str1) && Boolean.parseBoolean(str2);
                         return new Literal (new Tipo (Tipo.EnumTipo.booleano), resultado.toString());
                 }
         }
+        cError errora=new cError("Semantico","No se puede comparar "+exp1.tipo.tipo+" entre "+exp2.tipo.tipo,linea,columna);
+        ProyectCompi1.errores.add(errora);
         return new Literal(new Tipo(Tipo.EnumTipo.error) , "@Error@");
     }
     

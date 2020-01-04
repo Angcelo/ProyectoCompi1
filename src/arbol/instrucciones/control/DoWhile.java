@@ -12,6 +12,7 @@ import arbol.entornos.Tipo;
 import arbol.instrucciones.Break;
 import arbol.instrucciones.Continue;
 import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -40,7 +41,7 @@ public class DoWhile extends Instruccion{
             boolean condicion;
             
             do {
-                Entorno entornoWhile = new Entorno ("DoWhile",ent,ent.Global);
+                Entorno entornoWhile = new Entorno ("DoWhile",ent);
                 Object retorno = bloque.ejecutar(entornoWhile);
                 
                 if(retorno != null) {
@@ -60,7 +61,8 @@ public class DoWhile extends Instruccion{
             }while (condicion);
             
         } else {
-            System.out.println("Error sintáctico: se esperaba valor booleano");
+            cError errora=new cError("Semantico","Se esperaba valor booleano",linea,columna);
+            ProyectCompi1.errores.add(errora);
         }
         
         

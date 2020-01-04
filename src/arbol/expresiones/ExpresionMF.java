@@ -31,19 +31,11 @@ public class ExpresionMF extends Expresion{
         this.argumentos=argumentos;
     }
     
-    public ExpresionMF(String id,int linea,int columna){
-        this.linea=linea;
-        this.columna=columna;
-        this.id=id;
-        this.argumentos=null;
-    }
-    
-    
     @Override
     public Expresion getValor(Entorno ent) {
-        Object retorno=null;
+        Object retorno;
         LinkedList<Expresion> argumentos_=new LinkedList();
-        Entorno entMF=new Entorno(id,ent,ent.Global);
+        Entorno entMF=new Entorno(id,ent);
         String id_=id+"#";
         if (argumentos!=null) {
             argumentos.forEach((argumento) -> {
@@ -69,9 +61,11 @@ public class ExpresionMF extends Expresion{
                 }
             }
             retorno=((SimboloMF)sim).getBloque().ejecutar(entMF);
-            if (retorno!=null) {
+            if (retorno!=null) {           
+                ProyectCompi1.pilaMF.pop();
                 return (Literal)retorno;
             }
+            ProyectCompi1.pilaMF.pop();
         }
         return null;
     }

@@ -47,10 +47,8 @@ public class GraficarDot extends Instruccion{
         if (i > 0) {
             extension = ruta.valor.toString().substring(i+1);
             nuevaruta=ruta.valor.toString().replace(extension, "dot");
-            System.out.println(nuevaruta);
         }else{
             nuevaruta=ruta.valor.toString()+".dot";
-            System.out.println(nuevaruta);
         }
         File dot=new File(nuevaruta);
         try {

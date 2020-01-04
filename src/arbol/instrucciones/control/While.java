@@ -11,6 +11,7 @@ import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.instrucciones.*;
 import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -39,7 +40,7 @@ public class While extends Instruccion {
             boolean condicion = Boolean.parseBoolean(valorWhile_.valor.toString());
             
             while (condicion) {
-                Entorno entornoWhile = new Entorno ("while",ent,ent.Global);
+                Entorno entornoWhile = new Entorno ("while",ent);
                 Object retorno = bloque.ejecutar(entornoWhile);
                 
                 if(retorno != null) {
@@ -59,7 +60,8 @@ public class While extends Instruccion {
             }
             
         } else {
-            System.out.println("Error sintáctico: se esperaba valor booleano");
+            cError errora=new cError("Semantico","Se esperaba valor booleano",linea,columna);
+            ProyectCompi1.errores.add(errora);
         }
         
         

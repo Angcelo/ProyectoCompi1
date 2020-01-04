@@ -57,20 +57,24 @@ public class If extends Instruccion {
     
     @Override
     public Object ejecutar(Entorno ent) {
-        ArrayList<Object> retorno=new ArrayList();
+        Object retorno=null;
+        boolean ejecutado=false;
         
         for (CondicionIf condicion : condiciones) {
             retorno = condicion.ejecutar(ent);
+            ejecutado=condicion.ejecutado;
+            if (ejecutado) {
+                break;
+            }
         }
         
-        boolean ejecutado=(boolean)retorno.get(0);
         
         if (this.bloqueElse != null && !ejecutado) {
-            Entorno nuevo  = new Entorno ("else",ent,ent.Global);
-            retorno.set(1, bloqueElse.ejecutar(nuevo));
+            Entorno nuevo  = new Entorno ("else",ent);
+            retorno=bloqueElse.ejecutar(nuevo);
         }
         
-        return retorno.get(1);
+        return retorno;
     }
     
     

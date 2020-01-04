@@ -37,7 +37,6 @@ public class Imprimir extends Instruccion{
         }
         
         if (resultado.tipo.tipo != Tipo.EnumTipo.error) {
-            System.out.println(resultado.valor + auxiliar);
             ProyectCompi1.Salida += resultado.valor + auxiliar;
         }
         

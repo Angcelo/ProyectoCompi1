@@ -1,0 +1,36 @@
+import("Arboles.nm");
+
+class Main
+{
+    void main()
+    {
+        //expresiones();
+        //recursividad();
+        //errores();
+        Arboles a = new Arboles();
+        ArbolBinario(a);
+        //a = null;
+        //println(a.a);
+    }
+
+    /**
+    *   ARBOL BINARIO
+    */
+    void ArbolBinario(Arboles a)
+    {
+        println("----- ARBOL BINARIO -----");
+        println("--- Analizando insercion ABB ---");
+        a.insercionABB();
+        graficar_dot("binario1.png", a.getDotABB());
+        a.preordenABB();
+        a.inordenABB();
+        a.postordenABB();
+        println("Done.");
+
+        println("--- Analizando eliminación ABB ---");
+        a.eliminarABB();
+        graficar_dot("binario2.png", a.getDotABB());
+        a.inordenABB();
+        println("Done.");
+    }
+}

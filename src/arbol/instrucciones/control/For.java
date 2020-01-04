@@ -9,10 +9,10 @@ import arbol.Expresion;
 import arbol.Instruccion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
-import arbol.instrucciones.Global.AsignacionG;
 import arbol.instrucciones.Break;
 import arbol.instrucciones.Continue;
 import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 /**
  *
  * @author angel
@@ -41,7 +41,7 @@ public class For  extends Instruccion{
         if (comp.tipo.tipo==Tipo.EnumTipo.booleano) {
             boolean condicion = Boolean.parseBoolean(comp.valor.toString());
             while(condicion){
-                Entorno entornofor=new Entorno("for",ent,ent.Global);
+                Entorno entornofor=new Entorno("for",ent);
                 Object retorno=bloque.ejecutar(entornofor);
                 if (retorno!=null) {
                     if (retorno.getClass()==Break.class) {
@@ -60,7 +60,8 @@ public class For  extends Instruccion{
                 condicion=Boolean.parseBoolean(comp.valor.toString());
             }
         }else{
-            System.out.println("Error sintáctico: se esperaba valor booleano");
+            cError errora=new cError("Semantico","Se esperaba valor booleano",linea,columna);
+            ProyectCompi1.errores.add(errora);
         }
         ProyectCompi1.pilaCiclos.pop();
         return null;
@@ -68,10 +69,10 @@ public class For  extends Instruccion{
 
     @Override
     public String graficar(String nonode,String siguiente) {
-        String bloque="";
+        String bloque_="";
         String repetir=this.bloque.graficar(nonode,siguiente+", node"+nonode);
-        bloque +="node"+nonode+" -> "+repetir;
-        return bloque;
+        bloque_ +="node"+nonode+" -> "+repetir;
+        return bloque_;
     }
     
 }

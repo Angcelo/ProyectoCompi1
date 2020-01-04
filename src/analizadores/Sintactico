@@ -8,14 +8,10 @@ import arbol.expresiones.aritmeticas.*;
 import arbol.expresiones.comparacion.*;
 import arbol.expresiones.logicas.*;
 import arbol.instrucciones.*;
-import arbol.instrucciones.Global.*;
 import arbol.instrucciones.control.*;
 import arbol.entornos.*;
 import proyectcompi1.ProyectCompi1;
 import proyectcompi1.cError;
-import proyectcompi1.fmrPrincipal;
-import java.io.File;
-import java.io.FileInputStream;
 
 parser code 
 {:   
@@ -40,24 +36,25 @@ parser code
 :} 
 
 terminal String mas,menos,por,division,potencia,parizquierdo,parderecho,igual,puntoycoma,llaveizq,llaveder,rint,rdouble,rchar,rboolean,rstring,rclass,coma,rvoid;
-terminal String entero,doble,rtrue,rfalse,cadena,caracter,id,rprintln,rprint,rprinttabla;
-terminal String menorque,mayorque,menorigualque,mayorigualque,igualigual,diferenteque,or,and,xor,not,rif,relse,rwhile,rbreak,rcontinue,modulo,rfor,rdo,rswitch,rcase,rdefault,dospuntos,interrogacion,masmas,menosmenos,rpow,rreturn,corizquierdo,corderecho,rnew,rpublic,rprotected,rprivate,rabstract,rstatic,rfinal,rstr,rtoDouble,rtoInt,rtoChar,rextends,punto,rthis,rnull,rimport,
-rgraph,rsuper,rread_file,rwrite_file,rinstanceof,rread,rgraficardot,rgraficarentorno;
-
-terminal umenos; 
+terminal String entero,doble,rtrue,rfalse,cadena,caracter,id,rprintln,rprint;
+terminal String menorque,mayorque,menorigualque,mayorigualque,igualigual,diferenteque,or,and,xor,not,rif,relse,rwhile,rbreak,rcontinue,modulo,rfor,rdo,rswitch,rcase,rdefault;
+terminal String dospuntos,masmas,menosmenos,rreturn,corizquierdo,corderecho,rnew,punto,rnull,rimport,rgraficardot,rgraficarentorno; 
 
 non terminal INICIO;
+non terminal Integer DIMENSION;
+non terminal LinkedList<Integer> DIMENSION2;
 non terminal LinkedList<Instruccion> L_INSTRUCCIONES,GFM,PARAMETROS,L_IMPORT;
-non terminal LinkedList<Expresion> ID,PARAM2,PARAM2_;
-non terminal Instruccion CLASS,IMPORT,RETURN,METFUN,GRAFICAR_ENTORNO,GRAFICAR_DOT,INSTRUCCION,DECLARACION,DECLARACIONG,ASIGNACION, IMPRIMIR,BREAK, CONTINUE ,SENTENCIA_IF, SENTENCIA_WHILE, SENTENCIA_SWITCH,SENTENCIA_FOR,DECASIG,SENTENCIA_DOWHILE;
-non terminal Expresion E,GE,HE,IE,V;
-non terminal Tipo T;
+non terminal LinkedList<Expresion> V,PARAM2,PARAM2_;
+non terminal Instruccion CLASS,IMPORT,RETURN,METFUN,GRAFICAR_ENTORNO,GRAFICAR_DOT,INSTRUCCION,DECLARACION,ASIGNACION, IMPRIMIR,BREAK, CONTINUE ,SENTENCIA_IF, SENTENCIA_WHILE, SENTENCIA_SWITCH,SENTENCIA_FOR,DECASIG,SENTENCIA_DOWHILE;
+non terminal Expresion E,GE,HE,IE,EXPRESION,ID;
+non terminal Tipo T,T2;
+non terminal Arreglos LISTA_ARREGLO2,LISTA_ARREGLO;
 non terminal LinkedList<CondicionIf> L_IF;
 non terminal LinkedList<CondicionSwitch> L_CASOS;
 non terminal Instrucciones INSTRUCT,BLOQUECLASS;
 
 
-precedence right interrogacion,dospuntos;
+precedence right dospuntos;
 
 
 precedence left or;
@@ -73,8 +70,6 @@ precedence left potencia;
 precedence left masmas,menosmenos; 
 
 precedence left punto; 
-
-precedence left umenos;
 
 start with INICIO;
 
@@ -93,19 +88,18 @@ L_IMPORT ::= L_IMPORT:a IMPORT:b {: a.add(b); RESULT=a; :}
              |IMPORT:a {: RESULT = new LinkedList<>(); RESULT.add(a); :}
 ;
 
-IMPORT ::= rimport cadena:a puntoycoma {:RESULT=new Importar(a,aleft,aright); :}
+IMPORT ::= rimport parizquierdo cadena:a parderecho puntoycoma {:RESULT=new Importar(a,aleft,aright); :}
 ;
 
 GFM ::= GFM:a METFUN:b {:  a.add(b); RESULT = a; :}
         |GFM:a DECLARACION:b puntoycoma {: a.add(b); RESULT = a; :}
-        |METFUN:a {: RESULT = new LinkedList<>(); RESULT.add(a); :}
-        |DECLARACIONG:a puntoycoma{: RESULT = new LinkedList<>(); RESULT.add(a); :}
+        |METFUN:a {: RESULT = new LinkedList(); RESULT.add(a); :}
+        |DECLARACION:a puntoycoma{: RESULT = new LinkedList(); RESULT.add(a); :}
 ; 
 
-DECLARACIONG ::= T:a id:b igual E:c {: RESULT = new DeclaracionG(a, b, c, bleft, bright); :}
-                |T:a id:b {: RESULT = new DeclaracionG(a, b, bleft, bright); :}   
-                |id:a id:b {: RESULT = new DeclaracionClaseG(a,b,false,aleft,aright); :}
-                |id:a id:b igual rnew id:d PARAM2:c {: RESULT = new DeclaracionClaseG(a,b,c,d,true,aleft,aright); :}
+DECLARACION ::=  T:a id:b {: RESULT = new Declaracion(a, b, bleft, bright); :}  
+                |T:a id:b igual EXPRESION:c {: RESULT = new Declaracion(a, b, c, bleft, bright); :} 
+                
 ;
 
 METFUN ::= T:a id:b parizquierdo parderecho INSTRUCT:c {: RESULT = new DeclaracionMF(a, b, c, aleft, aright); :}
@@ -192,15 +186,8 @@ INSTRUCT ::= llaveizq:z llaveder:y     {: RESULT = new Instrucciones(); :}
         | llaveizq:z L_INSTRUCCIONES:a llaveder:y {: RESULT = new Instrucciones(a); :}
 ;
 
-DECLARACION ::= T:a id:b igual E:c {: RESULT = new Declaracion(a, b, c, bleft, bright); :}
-                |T:a id:b {: RESULT = new Declaracion(a, b, bleft, bright); :} 
-                |id:a id:b {: RESULT = new DeclaracionClase(a,b,false,aleft,aright); :}
-                |id:a id:b igual rnew id:d PARAM2:c {: RESULT = new DeclaracionClase(a,b,c,d,true,aleft,aright); :}
-;
-
-ASIGNACION ::= ID:a igual E:b {: RESULT=new Asignacion(a,aleft,aright,b); :}
-              |ID:a igual rnew id:b PARAM2:c {: RESULT=new AsignacionClase(a,b,c,aleft,aright); :}
-              |ID:a {: RESULT=new Asignacion(a,aleft,aright); :}
+ASIGNACION ::= V:a igual EXPRESION:b {: RESULT=new Asignacion(a,aleft,aright,b); :}
+              |V:a {: RESULT=new Asignacion(a,aleft,aright); :}
 ;
 
 PARAM2 ::=  parizquierdo PARAM2_:a parderecho {: RESULT=a; :}
@@ -211,16 +198,52 @@ PARAM2_ ::= E:a {: RESULT=new LinkedList(); RESULT.add(a); :}
             |PARAM2_:a coma E:b {: a.add(b); RESULT=a; :}
 ;
 
-T ::= rint:a {: RESULT = new Tipo(Tipo.EnumTipo.entero); :}
+T ::= rint {: RESULT = new Tipo(Tipo.EnumTipo.entero); :}
     | rchar {: RESULT = new Tipo(Tipo.EnumTipo.caracter); :}
     | rboolean {: RESULT = new Tipo(Tipo.EnumTipo.booleano); :}
     | rdouble {: RESULT = new Tipo(Tipo.EnumTipo.doble); :}
     | rstring {: RESULT = new Tipo(Tipo.EnumTipo.cadena); :}
     | rvoid:a {: RESULT=new Tipo(Tipo.EnumTipo.vacio); :}
+    | id:a {: RESULT=new Tipo(Tipo.EnumTipo.nulo,a,-1); :}
+    | rint DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.entero,"arreglo",a); :}
+    | rchar DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.caracter,"arreglo",a); :}
+    | rboolean DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.booleano,"arreglo",a); :}
+    | rdouble DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.doble,"arreglo",a); :}
+    | rstring DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.cadena,"arreglo",a); :}
+    | id:a DIMENSION:b {: RESULT=new Tipo(Tipo.EnumTipo.nulo,a,b); :}
 ;
+
+T2 ::= rint {: RESULT = new Tipo(Tipo.EnumTipo.entero); :}
+    | rchar {: RESULT = new Tipo(Tipo.EnumTipo.caracter); :}
+    | rboolean {: RESULT = new Tipo(Tipo.EnumTipo.booleano); :}
+    | rdouble {: RESULT = new Tipo(Tipo.EnumTipo.doble); :}
+    | rstring {: RESULT = new Tipo(Tipo.EnumTipo.cadena); :}
+    | id:a {: RESULT = new Tipo(Tipo.EnumTipo.clase,a,-1); :}
+;
+
+DIMENSION ::=  corizquierdo corderecho {: RESULT=1; :}
+              |DIMENSION:a corizquierdo corderecho {: a+=1; RESULT=a; :}
+;
+
+DIMENSION2 ::=  corizquierdo entero:a corderecho {: RESULT=new LinkedList(); RESULT.add(Integer.parseInt(a)); :}
+              |DIMENSION2:a corizquierdo entero:b corderecho {: RESULT=a; RESULT.add(Integer.parseInt(b)); :}
+;
+
+LISTA_ARREGLO ::=  llaveizq llaveder {: RESULT=new Arreglos(null); :}
+                  |llaveizq PARAM2_:a llaveder {: RESULT=new Arreglos(a); :}
+                  |llaveizq LISTA_ARREGLO2:a llaveder {: RESULT=a; :}
+;
+
+LISTA_ARREGLO2 ::=  LISTA_ARREGLO:a {: RESULT=new Arreglos(); RESULT.n.add(a); RESULT.Dimension(); RESULT.Agregar(); :}
+                  | LISTA_ARREGLO2:a coma LISTA_ARREGLO:b {: a.n.add(b); RESULT=a; RESULT.Agregar(); :}
+;                  
 
 IMPRIMIR ::= rprintln parizquierdo E:a parderecho {: RESULT = new Imprimir(a,true); :}
     | rprint parizquierdo E:a parderecho {: RESULT = new Imprimir(a,false); :}
+;
+
+EXPRESION ::=     E:a {: RESULT=a; :}
+                | LISTA_ARREGLO:a {: RESULT=a; :}
 ;
 
 E ::=     E:a mas GE:b {: RESULT = new Suma(a, b, aleft, aright); :}
@@ -232,6 +255,8 @@ E ::=     E:a mas GE:b {: RESULT = new Suma(a, b, aleft, aright); :}
         | E:a or GE:b {: RESULT = new Or(a, b, aleft,aright);:}
 
         | GE:a {: RESULT=a; :}
+        | rnew T2:a DIMENSION2:b {: RESULT=new Arreglos(a,b); :}    
+        | rnew T2:a PARAM2:b {: RESULT=new Instancia(a,b,aleft,aright); :}
 ;
 
 GE ::=    HE:a por GE:b {: RESULT = new Multiplicacion(a,b,aleft, aright);:}
@@ -257,26 +282,26 @@ HE  ::=   IE:a potencia HE:b{: RESULT = new Potencia(a,b,aleft,aright);:}
       
 IE  ::=   menos IE:a {: RESULT = new Negativo(a, aleft, aright); :}
         | not IE:a {: RESULT =new Not(a, aleft,aright); :} 
-        | V:a {: RESULT=a; :}
-        | parizquierdo E:a parderecho {: RESULT=a; :} 
+        | V:a {: RESULT=new Ejecutar(a,aleft,aright); :}
 ;    
 
-V   ::= entero:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.entero), a); :}
+V ::=  ID:a punto V:b {: b.add(a); RESULT=b; :} 
+      |ID:a {: RESULT=new LinkedList(); RESULT.add(a); :}
+;
+
+ID   ::= entero:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.entero), a); :}
       | caracter:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.caracter), a.replace("\'","")); :}
       | rtrue {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.booleano), true); :}
       | rfalse {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.booleano), false); :}
       | doble:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.doble), a); :}
-      | cadena:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.cadena), a.replace("\"","")); :}
-      | ID:a {: RESULT=new Ejecutar(a,aleft,aright); :}
+      | cadena:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.cadena),a); :}
+      | rnull {: RESULT=new Literal(new Tipo(Tipo.EnumTipo.nulo), null); :}
+      | id:a {: RESULT= new Id(a,aleft,aright); :}
+      | id:a masmas {: RESULT= new Aumento(a,aleft,aright); :}
+      | id:a menosmenos {:RESULT=new Decremento(a,aleft,aright); :} 
+      | id:a PARAM2:b {: RESULT=new ExpresionMF(a,b,aleft,aright); :}
+      | id:a DIMENSION2:b {: RESULT=new Id(a,b,aleft,aright); :}
+      | parizquierdo E:a parderecho {: RESULT=a; :} 
 ;
 
-ID ::=  id:a punto ID:b {: b.add(new Id(a,aleft,aright)); RESULT=b; :}
-       |rthis punto id:a punto ID:b {: b.add(new IdG(a,aleft,aright)); RESULT=b; :}
-       |id:a {: RESULT=new LinkedList(); RESULT.add(new Id(a,aleft,aright)); :}
-       |rthis punto id:a masmas {: RESULT=new LinkedList(); RESULT.add(new Aumento(new AsignacionAumentoG(a,aleft,aright),new Id(a,aleft,aright),aleft,aright)); :}
-       |rthis punto id:a menosmenos {: RESULT=new LinkedList(); RESULT.add(new Decremento(new AsignacionDecrementoG(a,aleft,aright),new Id(a,aleft,aright),aleft,aright)); :}
-       |rthis punto id:a {: RESULT=new LinkedList(); RESULT.add(new IdG(a,aleft,aright)); :}
-       |id:a masmas {: RESULT=new LinkedList(); RESULT.add(new Aumento(new AsignacionAumento(a,aleft,aright),new Id(a,aleft,aright),aleft,aright)); :}
-       |id:a menosmenos {: RESULT=new LinkedList(); RESULT.add(new Decremento(new AsignacionDecremento(a,aleft,aright),new Id(a,aleft,aright),aleft,aright)); :} 
-       |id:a PARAM2:b {: RESULT=new LinkedList(); RESULT.add(new ExpresionMF(a,b,aleft,aright)); :}
-;
+

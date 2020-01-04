@@ -77,11 +77,11 @@ public class DeclaracionMF extends Instruccion{
         }
         if (tipo==null) { 
             sim.tipo=new Tipo(Tipo.EnumTipo.contructor);
-            ent.Global.insertar(nombre_, sim, linea, columna, "El constructor");
+            ent.insertar(nombre_, sim, linea, columna, "El constructor");
         }else if (tipo.tipo==Tipo.EnumTipo.vacio) {
-            ent.Global.insertar(nombre_, sim, linea, columna, "El metodo");
+            ent.insertar(nombre_, sim, linea, columna, "El metodo");
         }else{
-            ent.Global.insertar(nombre_, sim, linea, columna, "La funcion");
+            ent.insertar(nombre_, sim, linea, columna, "La funcion");
         }
         return null;
     }

@@ -14,6 +14,7 @@ import arbol.instrucciones.Break;
 import arbol.instrucciones.Continue;
 import proyectcompi1.ProyectCompi1;
 import java.util.LinkedList;
+import proyectcompi1.cError;
 
 /**
  *
@@ -37,15 +38,16 @@ public class Switch extends Instruccion {
     @Override
     public Object ejecutar(Entorno ent) {
         ProyectCompi1.pilaCiclos.push(ProyectCompi1.SwitchCiclo.Switch);
-        Object retorno=null;
+        Object retorno;
+        Entorno switchent=new Entorno("swtich",ent);
         for (CondicionSwitch condicion : this.condiciones) {
             if (condicion.valorCaso != null) {
                 Igual igual = new Igual (this.valor, condicion.valorCaso);
-                Expresion igual_ = igual.getValor(new Entorno ("swtich",ent,ent.Global));
+                Expresion igual_ = igual.getValor(switchent);
                 if (igual_.tipo.tipo == Tipo.EnumTipo.booleano) {
                     boolean blnIgual = Boolean.parseBoolean(igual_.valor.toString());
                     if (blnIgual || this.ejecutado) {
-                        retorno = condicion.ejecutar(new Entorno("switch",ent,ent.Global));
+                        retorno = condicion.ejecutar(switchent);
                         if (retorno != null) {
                             if(retorno.getClass() == Break.class) {
                                 this.ejecutado=false;
@@ -63,9 +65,12 @@ public class Switch extends Instruccion {
                         }
                         this.ejecutado  = true;
                     }
+                }else{
+                    cError errora=new cError("Semantico","Se esperaba valor booleano",linea,columna);
+                    ProyectCompi1.errores.add(errora);
                 }
             }else if (this.ejecutado)  {
-                retorno = condicion.ejecutar(new Entorno("switch",ent,ent.Global));
+                retorno = condicion.ejecutar(switchent);
                 if (retorno != null) {
                     if (retorno.getClass() == Break.class) {
                         ProyectCompi1.pilaCiclos.pop();
@@ -86,7 +91,7 @@ public class Switch extends Instruccion {
             for (CondicionSwitch condicion : this.condiciones) {
                 if (condicion.valorCaso == null) {
                     this.ejecutado = true;
-                    retorno = condicion.ejecutar(new Entorno("switch",ent,ent.Global));
+                    retorno = condicion.ejecutar(switchent);
                     if (retorno != null) {
                         if (retorno.getClass() == Break.class) {
                             this.ejecutado=false;
@@ -103,7 +108,7 @@ public class Switch extends Instruccion {
                         }    
                     } 
                 }else if (this.ejecutado) {
-                    retorno = condicion.ejecutar(new Entorno("switch",ent,ent.Global));
+                    retorno = condicion.ejecutar(switchent);
                     if (retorno != null) {
                         if (retorno.getClass() == Break.class) {
                             this.ejecutado=false;

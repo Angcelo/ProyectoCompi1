@@ -13,16 +13,18 @@ public class Tipo {
     
     public EnumTipo tipo;
     public String tr;
+    public int Dimension;
     
     
     public Tipo (EnumTipo tipo) {
         this.tipo = tipo;
-        
+        this.Dimension=-1;
         this.tr = "";
     }
     
-    public Tipo (EnumTipo tipo , String tr) {
+    public Tipo (EnumTipo tipo , String tr,int Dimension) {
         this.tipo = tipo;
+        this.Dimension=Dimension;
         this.tr = tr;
     }
     

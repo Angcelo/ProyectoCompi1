@@ -13,7 +13,6 @@ package arbol;
 import arbol.entornos.Entorno;
 import arbol.entornos.Simbolo;
 import arbol.entornos.SimboloMF;
-import arbol.instrucciones.Clase;
 import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,8 +29,7 @@ public class AST {
     public static String archivo;
 
     public AST() {
-        tablaGlobal = new Entorno("Global",null,tablaGlobal);
-        tablaGlobal.Global=tablaGlobal;
+        tablaGlobal = new Entorno("Global",null);
     }
     
     public void SetInstrucciones(LinkedList<Instruccion> lista_instrucciones){
@@ -61,9 +59,9 @@ public class AST {
     public void Inicio(){
         Entorno temp;
         for(temp=tablaGlobal;temp!=null;temp=temp.anterior){
-            Simbolo inicio=temp.Global.buscar("main#", 0, 0);
+            Simbolo inicio=temp.buscar("main#", 0, 0);
             if (inicio!=null) {
-                Entorno entinicio=new Entorno("main",tablaGlobal,tablaGlobal.Global);
+                Entorno entinicio=new Entorno("main",tablaGlobal);
                 ((SimboloMF)inicio).getBloque().ejecutar(entinicio);
                 return;
             }
@@ -72,7 +70,6 @@ public class AST {
     }
     
     public void Graficar(String AST) throws IOException, InterruptedException{
-        System.out.println("A graficar");
         File file=new File("AST"+AST+".dot");
         BufferedWriter bw;
         bw=new BufferedWriter(new FileWriter(file));

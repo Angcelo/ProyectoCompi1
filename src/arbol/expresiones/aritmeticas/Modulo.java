@@ -9,6 +9,8 @@ import arbol.Expresion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Literal;
+import proyectcompi1.ProyectCompi1;
+import proyectcompi1.cError;
 
 /**
  *
@@ -32,8 +34,11 @@ public class Modulo extends Expresion {
         Expresion e1 = this.izquierda.getValor(ent);
         Expresion e2 = this.derecha.getValor(ent);
         
-        String str1 = e1.valor.toString();
-        String str2 = e2.valor.toString();
+        String str1=null,str2=null;
+        if (e1.valor!=null && e2.valor!=null) {
+            str1 = e1.valor.toString();
+            str2 = e2.valor.toString();
+        }
         Literal literal=new Literal (new Tipo (Tipo.EnumTipo.error) , "@@Error");
 
         switch (e1.tipo.tipo) {
@@ -85,6 +90,10 @@ public class Modulo extends Expresion {
                         break;
                 }
                 break;
+        }
+        if (literal.tipo.tipo==Tipo.EnumTipo.error) {
+            cError errora=new cError("Semantico","No se hacer modulo "+e1.tipo.tipo+" entre "+e2.tipo.tipo,linea,columna);
+            ProyectCompi1.errores.add(errora);
         }
         return literal;
     }
