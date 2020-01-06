@@ -1,0 +1,36 @@
+import "ArbolBinario.nm";
+
+class Arboles
+{
+   ArbolBinario abb=new ArbolBinario();
+
+   void main(){
+        abb.insertar(12);
+        abb.insertar(5);
+        abb.insertar(26);
+        abb.insertar(33);
+        abb.insertar(59);
+        abb.insertar(27);
+        abb.insertar(15);
+        abb.inorden();
+   }
+
+    void preordenABB() {
+        abb.preorden();
+    }
+    void postordenABB() {
+        abb.postorden();
+    }
+
+    NodoArbolBinario buscarABB() {
+        return abb.elemento_minimo(abb.getRaiz()).valor;
+    }
+
+    void eliminarABB() {
+        abb.eliminar(abb.getRaiz(), 26);
+    }
+
+    String getDotABB() {
+        return abb.getDot();
+    }
+}

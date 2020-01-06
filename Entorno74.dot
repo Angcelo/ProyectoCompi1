@@ -1,0 +1,10 @@
+digraph matriz{ 
+ rankdir=LR; 
+nodesep=.05;
+node [shape=record,width=.1,height=.1];
+node0 [label = " Variable: b, tipo: entero, valor: 1|",height=2.0];
+node0 -> node1
+node1 [label = " Variable: a, tipo: entero, valor: 0|Variable: main#, tipo: vacio, valor: main|Variable: Adios$, tipo: contructor, valor: Adios|Variable: this, tipo: objeto, valor: arbol.expresiones.Instancia@33d52c95|",height=2.0];
+node1 -> node2
+node2 [label = " Variable: hola$entero, tipo: contructor, valor: hola|Variable: a, tipo: entero, valor: 1|Variable: geta#, tipo: vacio, valor: geta|Variable: this, tipo: objeto, valor: arbol.expresiones.Instancia@5131d327|",height=2.0];
+}

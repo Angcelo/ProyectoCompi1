@@ -56,19 +56,16 @@ non terminal Instrucciones INSTRUCT,BLOQUECLASS;
 
 precedence right dospuntos;
 
-
 precedence left or;
 precedence left and;
 precedence left xor;
 precedence right not;
-
-precedence left menorque,menorigualque,mayorque,mayorigualque,igualigual,diferenteque;
-
+precedence left igualigual,diferenteque;
+precedence left menorque,menorigualque,mayorque,mayorigualque;
 precedence left mas,menos;
 precedence left por,division,modulo;
 precedence left potencia;
 precedence left masmas,menosmenos; 
-
 precedence left punto; 
 
 start with INICIO;
@@ -88,7 +85,7 @@ L_IMPORT ::= L_IMPORT:a IMPORT:b {: a.add(b); RESULT=a; :}
              |IMPORT:a {: RESULT = new LinkedList<>(); RESULT.add(a); :}
 ;
 
-IMPORT ::= rimport parizquierdo cadena:a parderecho puntoycoma {:RESULT=new Importar(a,aleft,aright); :}
+IMPORT ::= rimport cadena:a puntoycoma {:RESULT=new Importar(a,aleft,aright); :}
 ;
 
 GFM ::= GFM:a METFUN:b {:  a.add(b); RESULT = a; :}
@@ -191,7 +188,7 @@ ASIGNACION ::= V:a igual EXPRESION:b {: RESULT=new Asignacion(a,aleft,aright,b);
 ;
 
 PARAM2 ::=  parizquierdo PARAM2_:a parderecho {: RESULT=a; :}
-           |parizquierdo parderecho{: RESULT=null;:}
+           |parizquierdo parderecho{: RESULT=new LinkedList(); :}
 ;
 
 PARAM2_ ::= E:a {: RESULT=new LinkedList(); RESULT.add(a); :}
@@ -204,13 +201,13 @@ T ::= rint {: RESULT = new Tipo(Tipo.EnumTipo.entero); :}
     | rdouble {: RESULT = new Tipo(Tipo.EnumTipo.doble); :}
     | rstring {: RESULT = new Tipo(Tipo.EnumTipo.cadena); :}
     | rvoid:a {: RESULT=new Tipo(Tipo.EnumTipo.vacio); :}
-    | id:a {: RESULT=new Tipo(Tipo.EnumTipo.nulo,a,-1); :}
+    | id:a {: RESULT=new Tipo(Tipo.EnumTipo.objeto,a,-1); :}
     | rint DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.entero,"arreglo",a); :}
     | rchar DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.caracter,"arreglo",a); :}
     | rboolean DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.booleano,"arreglo",a); :}
     | rdouble DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.doble,"arreglo",a); :}
     | rstring DIMENSION:a {: RESULT = new Tipo(Tipo.EnumTipo.cadena,"arreglo",a); :}
-    | id:a DIMENSION:b {: RESULT=new Tipo(Tipo.EnumTipo.nulo,a,b); :}
+    | id:a DIMENSION:b {: RESULT=new Tipo(Tipo.EnumTipo.objeto,a,b); :}
 ;
 
 T2 ::= rint {: RESULT = new Tipo(Tipo.EnumTipo.entero); :}
@@ -218,7 +215,7 @@ T2 ::= rint {: RESULT = new Tipo(Tipo.EnumTipo.entero); :}
     | rboolean {: RESULT = new Tipo(Tipo.EnumTipo.booleano); :}
     | rdouble {: RESULT = new Tipo(Tipo.EnumTipo.doble); :}
     | rstring {: RESULT = new Tipo(Tipo.EnumTipo.cadena); :}
-    | id:a {: RESULT = new Tipo(Tipo.EnumTipo.clase,a,-1); :}
+    | id:a {: RESULT = new Tipo(Tipo.EnumTipo.objeto,a,-1); :}
 ;
 
 DIMENSION ::=  corizquierdo corderecho {: RESULT=1; :}
@@ -234,8 +231,8 @@ LISTA_ARREGLO ::=  llaveizq llaveder {: RESULT=new Arreglos(null); :}
                   |llaveizq LISTA_ARREGLO2:a llaveder {: RESULT=a; :}
 ;
 
-LISTA_ARREGLO2 ::=  LISTA_ARREGLO:a {: RESULT=new Arreglos(); RESULT.n.add(a); RESULT.Dimension(); RESULT.Agregar(); :}
-                  | LISTA_ARREGLO2:a coma LISTA_ARREGLO:b {: a.n.add(b); RESULT=a; RESULT.Agregar(); :}
+LISTA_ARREGLO2 ::=  LISTA_ARREGLO:a {: RESULT=new Arreglos(); RESULT.n.add(a); RESULT.Dimension(); :}
+                  | LISTA_ARREGLO2:a coma LISTA_ARREGLO:b {: a.n.add(b); a.agregar(); RESULT=a; :}
 ;                  
 
 IMPRIMIR ::= rprintln parizquierdo E:a parderecho {: RESULT = new Imprimir(a,true); :}
@@ -246,43 +243,29 @@ EXPRESION ::=     E:a {: RESULT=a; :}
                 | LISTA_ARREGLO:a {: RESULT=a; :}
 ;
 
-E ::=     E:a mas GE:b {: RESULT = new Suma(a, b, aleft, aright); :}
-        | E:a menos GE:b {: RESULT = new Resta (a, b, aleft, aright) ;:}
-
-        | E:a igualigual GE:b {: RESULT = new Igual(a,b,aleft, aright);:}
-        | E:a diferenteque GE:b {: RESULT = new Diferente(a,b,aleft, aright);:}
-
-        | E:a or GE:b {: RESULT = new Or(a, b, aleft,aright);:}
-
-        | GE:a {: RESULT=a; :}
+E ::=     E:a or E:b {: RESULT = new Or(a, b, aleft,aright);:} 
+        | E:a and E:b {: RESULT = new And(a,b,aleft,aright);:} 
+        | E:a xor E:b {: RESULT = new Xor(a,b,aleft,aright);:}
+        | E:a igualigual E:b {: RESULT = new Igual(a,b,aleft, aright);:}
+        | E:a diferenteque E:b {: RESULT = new Diferente(a,b,aleft, aright);:}
+        | E:a mayorque E:b {: RESULT = new Mayor(a,b,aleft, aright);:}
+        | E:a menorque E:b {: RESULT = new Menor(a,b,aleft, aright);:}
+        | E:a mayorigualque E:b {: RESULT = new MayorIgual(a,b,aleft, aright);:}
+        | E:a menorigualque E:b {: RESULT = new MenorIgual(a,b,aleft, aright);:}
+        | E:a mas E:b {: RESULT = new Suma(a, b, aleft, aright); :}
+        | E:a menos E:b {: RESULT = new Resta (a, b, aleft, aright) ;:}
+        | E:a por E:b {: RESULT = new Multiplicacion(a,b,aleft, aright);:}
+        | E:a division E:b {: RESULT = new Division(a,b,aleft,aright); :}
+        | E:a modulo E:b {: RESULT  = new Modulo(a,b,aleft,aright);:}
+        | E:a potencia E:b{: RESULT = new Potencia(a,b,aleft,aright);:}
         | rnew T2:a DIMENSION2:b {: RESULT=new Arreglos(a,b); :}    
         | rnew T2:a PARAM2:b {: RESULT=new Instancia(a,b,aleft,aright); :}
-;
-
-GE ::=    HE:a por GE:b {: RESULT = new Multiplicacion(a,b,aleft, aright);:}
-        | HE:a division GE:b {: RESULT = new Division(a,b,aleft,aright); :}
-        | HE:a modulo GE:b {: RESULT  = new Modulo(a,b,aleft,aright);:}
- 
-        | HE:a mayorque GE:b {: RESULT = new Mayor(a,b,aleft, aright);:}
-        | HE:a menorque GE:b {: RESULT = new Menor(a,b,aleft, aright);:}
-        | HE:a mayorigualque GE:b {: RESULT = new MayorIgual(a,b,aleft, aright);:}
-        | HE:a menorigualque GE:b {: RESULT = new MenorIgual(a,b,aleft, aright);:}
-
-        | HE:a xor GE:b {: RESULT = new Xor(a,b,aleft,aright);:}
-        
-        | HE:a {: RESULT=a; :}
-;
-
-HE  ::=   IE:a potencia HE:b{: RESULT = new Potencia(a,b,aleft,aright);:}
-
-        | IE:a and HE:b {: RESULT = new And(a,b,aleft,aright);:} 
-
         | IE:a {: RESULT=a; :}
 ;
-      
-IE  ::=   menos IE:a {: RESULT = new Negativo(a, aleft, aright); :}
-        | not IE:a {: RESULT =new Not(a, aleft,aright); :} 
-        | V:a {: RESULT=new Ejecutar(a,aleft,aright); :}
+
+IE  ::=   menos IE:a {: RESULT = new Negativo(a, aleft, aright); :}     
+        | not IE:a {: RESULT =new Not(a, aleft,aright); :}
+        | V:a {: RESULT=new Ejecutar(a,aleft,aright); :}   
 ;    
 
 V ::=  ID:a punto V:b {: b.add(a); RESULT=b; :} 

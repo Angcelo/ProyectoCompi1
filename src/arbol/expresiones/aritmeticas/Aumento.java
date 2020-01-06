@@ -37,7 +37,7 @@ public class Aumento extends Expresion{
             switch (sim.tipo.tipo) { 
                 case entero:
                     error=false;
-                    sim.valor=Integer.parseInt(sim.valor.toString())+1;
+                    sim.valor=(int)Double.parseDouble(sim.valor.toString())+1;
                     break;
                 case doble:
                     error=false;

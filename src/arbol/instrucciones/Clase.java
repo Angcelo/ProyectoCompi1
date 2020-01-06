@@ -10,8 +10,6 @@ import arbol.Instruccion;
 import arbol.entornos.Entorno;
 import arbol.entornos.Simbolo;
 import arbol.entornos.Tipo;
-import arbol.expresiones.Instancia;
-import arbol.expresiones.Literal;
 import arbol.instrucciones.control.Instrucciones;
 import java.util.LinkedList;
 
@@ -52,17 +50,14 @@ public class Clase extends Instruccion{
                 importado.ejecutar(ent);
             });
         }
-        Object retorno= lista_instrucciones.ejecutar(ent);
-        Instancia i=new Instancia(new Tipo(Tipo.EnumTipo.clase,"this",-1),new LinkedList(),linea,columna);
-        i.cent=ent;
-        Simbolo rthis = new Simbolo(new Tipo(Tipo.EnumTipo.clase,"this",-1),i);
+        lista_instrucciones.ejecutar(ent);
+        Simbolo rthis = new Simbolo(new Tipo(Tipo.EnumTipo.objeto,"this",-1),ent);
         ent.insertar("this", rthis, linea, columna, "Global");
-        if (param==null) {
-            ent.Constructor();
-        }else{
+        ent.Constructor();
+        if (param!=null) {
             ent.Constructor(param,linea,columna);
         }
-        return (new Literal(new Tipo(Tipo.EnumTipo.cadena),"Clase."+nombre));
+        return null;
     }
     
     @Override

@@ -29,7 +29,7 @@ public class Tipo {
     }
     
     public enum EnumTipo {
-        entero, caracter, booleano, doble,cadena,vacio,objeto,clase,nulo,contructor,error
+        entero, caracter, booleano,doble,cadena,vacio,objeto,nulo,contructor,error
     }
 }
 

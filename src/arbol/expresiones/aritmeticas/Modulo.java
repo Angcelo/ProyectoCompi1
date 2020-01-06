@@ -45,7 +45,7 @@ public class Modulo extends Expresion {
             case entero:
                 switch (e2.tipo.tipo) {
                     case entero:
-                        int modint  = Integer.parseInt(str1) % Integer.parseInt(str2);
+                        int modint  = (int)Double.parseDouble(str1) % (int)Double.parseDouble(str2);
                         literal=new Literal (new Tipo (Tipo.EnumTipo.entero), modint) ;
                         break;
                     case doble:

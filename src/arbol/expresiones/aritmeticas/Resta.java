@@ -46,7 +46,7 @@ public class Resta extends Expresion {
             case entero:
                 switch (exp2.tipo.tipo){
                     case entero:
-                        int restaint = Integer.parseInt(str1) - Integer.parseInt(str2);
+                        int restaint = (int)Double.parseDouble(str1) - (int)Double.parseDouble(str2);
                         literal = new Literal (new Tipo(Tipo.EnumTipo.entero) , restaint);
                         break;
                     case doble:

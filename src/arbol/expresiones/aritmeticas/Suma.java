@@ -47,7 +47,7 @@ public class Suma extends Expresion {
             case entero :
                 switch (exp2.tipo.tipo) {
                     case entero:
-                        int sumaint= Integer.parseInt(str1) + Integer.parseInt(str2);
+                        int sumaint= (int)Double.parseDouble(str1) + (int)Double.parseDouble(str2);
                         literal = new Literal ( new Tipo (Tipo.EnumTipo.entero) , sumaint);
                         break;
                     case doble:
@@ -120,6 +120,9 @@ public class Suma extends Expresion {
                         literal = new Literal (new Tipo (Tipo.EnumTipo.cadena) , sumastr); 
                         break;                    
                     case booleano:
+                        literal = new Literal (new Tipo(Tipo.EnumTipo.cadena) , sumastr);
+                        break;
+                    case objeto:
                         literal = new Literal (new Tipo(Tipo.EnumTipo.cadena) , sumastr);
                         break;
                 }                

@@ -13,6 +13,7 @@ package arbol;
 import arbol.entornos.Entorno;
 import arbol.entornos.Simbolo;
 import arbol.entornos.SimboloMF;
+import arbol.entornos.Tipo;
 import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -60,7 +61,7 @@ public class AST {
         Entorno temp;
         for(temp=tablaGlobal;temp!=null;temp=temp.anterior){
             Simbolo inicio=temp.buscar("main#", 0, 0);
-            if (inicio!=null) {
+            if (inicio!=null && inicio.tipo.tipo==Tipo.EnumTipo.vacio) {
                 Entorno entinicio=new Entorno("main",tablaGlobal);
                 ((SimboloMF)inicio).getBloque().ejecutar(entinicio);
                 return;

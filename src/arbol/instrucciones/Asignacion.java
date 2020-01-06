@@ -11,9 +11,9 @@ import arbol.entornos.Entorno;
 import arbol.entornos.Simbolo;
 import arbol.entornos.Tipo;
 import arbol.expresiones.Arreglos;
+import arbol.expresiones.ExpresionMF;
 import arbol.expresiones.Id;
 import arbol.expresiones.Instancia;
-import arbol.expresiones.Literal;
 import java.util.LinkedList;
 import proyectcompi1.ProyectCompi1;
 import proyectcompi1.cError;
@@ -45,12 +45,12 @@ public class Asignacion extends Instruccion {
 
     @Override
     public Object ejecutar(Entorno ent) {
-        Entorno temp=ent;
+        Entorno temp=new Entorno("Ejecutar",ent);
         for (int i=(ids.size()-1); i>0;i--) {
-            Simbolo sim = temp.buscar(((Id)ids.get(i)).getid(), linea, columna, "La variable");
-            if(sim.tipo.tipo==Tipo.EnumTipo.clase){
-                if (sim.tipo.tipo!=Tipo.EnumTipo.nulo) {
-                    temp=((Instancia)sim.valor).cent;
+            Expresion e_=ids.get(i).getValor(temp);
+            if(e_.tipo.tipo==Tipo.EnumTipo.objeto){
+                if (e_.valor!=null) {
+                    temp=((Entorno)e_.valor);
                     temp.anterior=ent;
                 }else{
                     cError errora=new cError("Semantico",((Id)ids.get(i)).getid()+"La clase no esta inicializada",linea,columna);
@@ -64,28 +64,103 @@ public class Asignacion extends Instruccion {
             }
         }   
         if (valor==null) {
-            return ids.get(0).getValor(ent);
+            ids.get(0).getValor(temp);
+            return null;
+        }else if(((Id)ids.get(0)).busqueda!=null){
+            Simbolo sim=temp.buscar(((Id)ids.get(0)).getid(), linea, columna, "La variable");
+            LinkedList<Integer> buscar=((Id)ids.get(0)).busqueda;
+            if (sim!=null) {
+                Expresion resultado = valor.getValor(ent);
+                ((Arreglos)sim.valor).Reemplazar((Arreglos)sim.valor, buscar, resultado, 0, linea, columna);
+            }
         }else{
             Simbolo sim=temp.buscar(((Id)ids.get(0)).getid(), linea, columna, "La variable");
+            Expresion e_=ids.get(0).getValor(temp);
             boolean error=true;
             if (sim != null) { 
                 Expresion resultado = valor.getValor(ent);
+                    if (sim.tipo.Dimension!=resultado.tipo.Dimension) {
+                    cError errora=new cError("Semantico","'"+((Id)ids.get(0)).getid()+"' asignacion de tipos incompatibles "+sim.tipo.tipo+"D:"+sim.tipo.Dimension+" no se puede convertir a "+resultado.tipo+"D:"+resultado.tipo.Dimension,linea,columna);
+                    ProyectCompi1.errores.add(errora); 
+                    return null;
+                }
                 if (sim.tipo.Dimension>-1) {
-                    if (valor!=null && valor.getClass()==Arreglos.class) {
-                        valor.getValor(ent);
-                        if(((Arreglos)valor).Tipos((Arreglos)valor, sim.tipo,linea,columna)){
-                            sim.valor=valor;
+                   switch (sim.tipo.tipo) { 
+                    case entero:
+                        switch (resultado.tipo.tipo) {
+                            case entero:
+                            case caracter:
+                                sim.valor=resultado.valor;
+                                error=false;
+                                break;
+                            case nulo:
+                                sim.valor=null;
+                                error=false;
+                                break;
                         }
-                    }else if(valor.tipo.tipo==Tipo.EnumTipo.nulo){ 
-                        sim.valor=new Literal(new Tipo(Tipo.EnumTipo.nulo),null);
-                    }else{
-                        if (((Id)ids.get(0)).busqueda!=null) {
-                            ((Arreglos)sim.valor).Reemplazar((Arreglos)sim.valor, ((Id)ids.get(0)).busqueda, valor, 0, linea, columna);
-                            error=false;
-                        }else{
-                            cError errora=new cError("Semantico","'"+((Id)ids.get(ids.size()-1)).getid()+"' asignacion incorrecta para un arreglo",linea,columna);
-                            ProyectCompi1.errores.add(errora); 
+                        break;
+                    case doble:
+                        switch (resultado.tipo.tipo) {
+                            case caracter:
+                            case entero:
+                            case doble:
+                                sim.valor=resultado.valor;
+                                error=false;
+                                break;
+                            case nulo:
+                                sim.valor=null;
+                                error=false;
+                                break;
                         }
+                        break;
+                    case caracter:
+                        switch (resultado.tipo.tipo) {
+                            case caracter:
+                                sim.valor=resultado.valor;
+                                error=false;
+                                break;
+                            case nulo:
+                                sim.valor=null;
+                                error=false;
+                                break;
+                        }
+                        break;
+                    case booleano:
+                        switch (resultado.tipo.tipo) {
+                            case booleano:
+                                sim.valor=resultado.valor;
+                                error=false;
+                                break;
+                            case nulo:
+                                sim.valor=null;
+                                error=false;
+                                break;
+                        }
+                        break;
+                    case cadena:
+                        switch (resultado.tipo.tipo) {
+                            case cadena:
+                                sim.valor=resultado.valor;
+                                error=false;
+                                break;
+                            case nulo:
+                                sim.valor=null;
+                                error=false;
+                                break;
+                        }
+                        break;
+                    case objeto:
+                        switch(resultado.tipo.tipo){
+                            case objeto:
+                                sim.valor=resultado.valor;
+                                error=false;
+                                break;
+                            case nulo:
+                                sim.valor=null;
+                                error=false;
+                                break;
+                        }
+                        break;
                     }
                 }else{
                     switch (sim.tipo.tipo) { 
@@ -140,19 +215,19 @@ public class Asignacion extends Instruccion {
                                     break;
                             }
                             break;
-                        case nulo:
-                        case clase:
-                            switch(valor.tipo.tipo){
-                                case clase:
-                                if (sim.tipo.tr == null ? valor.tipo.tr == null : sim.tipo.tr.equals(valor.tipo.tr)) {
-                                    sim.tipo=new Tipo(Tipo.EnumTipo.clase,sim.tipo.tr,-1);
-                                    sim.valor=valor;
+                        case objeto:
+                            switch(resultado.tipo.tipo){
+                                case objeto:
+                                    if (sim.tipo.tr == null ? resultado.tipo.tr == null : sim.tipo.tr.equals(resultado.tipo.tr)) {
+                                        sim.valor=resultado.valor;
+                                    }else{
+                                        cError errora=new cError("Semantico","asignacion de tipos incompatibles "+sim.tipo.tr+" no se puede convertir a "+resultado.tipo.tr,linea,columna);
+                                        ProyectCompi1.errores.add(errora);
+                                    }
                                     error=false;
                                     break;
-                                }
                                 case nulo:
-                                    sim.tipo=new Tipo(Tipo.EnumTipo.nulo,sim.tipo.tr,-1);
-                                    sim.valor=sim.valor=new Literal(new Tipo(Tipo.EnumTipo.nulo,sim.tipo.tr,-1),null);;
+                                    sim.valor=null;
                                     error=false;
                                 break;
                             }

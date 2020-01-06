@@ -44,18 +44,14 @@ public class Entorno {
     }
     
     public void Constructor(){
-        boolean constructor=false;
         for (Simbolo var : this.tabla.values()) {
             if(var.tipo.tipo==Tipo.EnumTipo.contructor){
-                constructor=true;
-                break;
+                return;
             }
         }
-        if (!constructor) {
-            SimboloMF nuevoc=new SimboloMF(new Tipo(Tipo.EnumTipo.contructor),nombre);
-            nuevoc.bloque=new Instrucciones(new LinkedList());
-            this.insertar(this.nombre+"$", nuevoc, 0, 0, "El constructor");
-        }
+        SimboloMF nuevoc=new SimboloMF(new Tipo(Tipo.EnumTipo.contructor),nombre);
+        nuevoc.bloque=new Instrucciones(new LinkedList());
+        this.insertar(this.nombre+"$", nuevoc, 0, 0, "El constructor");
     }
     
     public void Constructor(LinkedList<Expresion> param,int linea,int columna){
@@ -67,10 +63,12 @@ public class Entorno {
             Simbolo sim=this.tabla.get(strcons);
             Entorno cent=new Entorno("constructor",this);
             int iterador=0;
-            for (Instruccion id:((SimboloMF)sim).getParametros()) {
-                ((Declaracion)id).valor=param.get(iterador);
-                id.ejecutar(cent);
-                iterador++;
+            if(((SimboloMF)sim).getParametros()!=null){
+                for (Instruccion id:((SimboloMF)sim).getParametros()) {
+                    ((Declaracion)id).valor=param.get(iterador);
+                    id.ejecutar(cent);
+                    iterador++;
+                }
             }
             ((SimboloMF)sim).getBloque().ejecutar(cent);  
         }else{
@@ -115,7 +113,7 @@ public class Entorno {
         int iterador=0;
         while(temp!=null){
             this.archivo+="node"+iterador+" [label = \" ";
-            temp.tabla.forEach((k,v) -> archivo+="Variable: " + k + ", tipo: " + v.tipo.tipo+ ", valor: "+v.valor+"|");
+            temp.tabla.forEach((k,v) -> archivo+="Variable: " + k + ", tipo: " + v.tipo.tipo+",  Instancia: "+v.tipo.tr+ ", valor: "+v.valor+"|");
             this.archivo+="\",height=2.0];\n";
             if (temp.anterior!=null) {
                 this.archivo+="node"+iterador+" -> "+"node"+(iterador+1)+"\n";

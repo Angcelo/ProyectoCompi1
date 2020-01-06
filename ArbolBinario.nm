@@ -37,7 +37,7 @@ import "NodoArbolBinario.nm";
         inorden(a.izquierdo);
         print(a.valor + ", ");
         inorden(a.derecho);
-        return null;
+        return "Si regresa";
     }
 
     void preorden()

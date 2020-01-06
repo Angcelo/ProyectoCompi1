@@ -21,6 +21,7 @@ public class Id extends Expresion {
     
     String id; 
     public LinkedList<Integer> busqueda;
+    public Entorno anterior;
 
     public Id(String id ,int linea, int columna) {
         this.id = id;
@@ -46,15 +47,16 @@ public class Id extends Expresion {
         Literal literal;
         if (busqueda!=null) {
             if (sim.tipo.Dimension>-1) {
-                return ((Arreglos)sim.valor).buscar((Arreglos)sim.valor, busqueda, 0, linea, columna);
+                Expresion e= ((Arreglos)sim.valor).buscar((Arreglos)sim.valor, busqueda, 0, linea, columna);
+                e.tipo.Dimension=busqueda.size();
+                return e;
             }else{
                 cError errora=new cError("Semantico",id+": no es un arreglo"+tipo.tipo,linea,columna);
                 ProyectCompi1.errores.add(errora); 
             }
         }
         if (sim != null){
-            Literal retorno = new Literal (sim.tipo, sim.valor );
-            literal= retorno;
+            literal = new Literal (sim.tipo, sim.valor );
         }else{
             literal=new Literal(new Tipo (Tipo.EnumTipo.error) , "@Error@");
         }

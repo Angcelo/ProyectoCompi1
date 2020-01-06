@@ -19,47 +19,35 @@ import proyectcompi1.cError;
 public final class Arreglos extends Expresion{
     public LinkedList<Expresion> n;
     public int dimension=0;
-    public int tamaño=0;
+    public int tamaño;
     
     public Arreglos(LinkedList<Expresion> e){
-        if (e.size()>0) {
-            this.tipo=e.get(0).tipo;
-        }
-        for (Expresion e_:e) {
-            if (e_.tipo.tipo!=this.tipo.tipo) {
-                this.tipo=new Tipo(Tipo.EnumTipo.error);
-                break;
-            }
-        }
         this.n=e;
         this.dimension=1;
         this.tamaño=e.size();
+        this.tipo=null;
     }
     
     public Arreglos(Tipo tipo,LinkedList<Integer> dimensiones){
         this.tipo=tipo;
+        this.tipo.Dimension=dimensiones.size();
         this.valor=Crear(tipo,dimensiones.size(),dimensiones);
     }
     
     public Arreglos(){
         this.n=new LinkedList();
+        this.tipo=null;
+    }
+    
+    public  void agregar(){
+        this.tamaño++;
     }
     
     public void Dimension(){
         if (!n.isEmpty()) {
             this.dimension=((Arreglos)this.n.get(0)).dimension+1;
-            this.tipo=this.n.get(0).tipo;
         }
-        for (Expresion e_: n) {
-            if (e_.tipo.tipo!=this.tipo.tipo) {
-                this.tipo=new Tipo(Tipo.EnumTipo.error);
-                break;
-            }
-        }
-    }
-    
-    public void Agregar(){
-        this.tamaño++;
+        this.agregar();
     }
     
     public Arreglos Crear(Tipo tipo,int dimension,LinkedList<Integer> dimensiones){
@@ -69,6 +57,7 @@ public final class Arreglos extends Expresion{
                 this.n.add(Crear2(tipo,dimension-1,dimensiones));
             }
             this.dimension=((Arreglos)this.n.get(0)).dimension+1;
+            this.tamaño=dimensiones.get(numero);
         }else{
             this.n=new LinkedList();
             this.dimension=1;
@@ -89,7 +78,7 @@ public final class Arreglos extends Expresion{
                 case cadena:
                     l=new Literal(tipo,"");
                     break;
-                case nulo:
+                case objeto:
                     l=new Literal(tipo,null);
                     break;
             }
@@ -108,6 +97,7 @@ public final class Arreglos extends Expresion{
                 n.n.add(Crear2(tipo,dimension-1,dimensiones));
             }
             n.dimension=((Arreglos)this.n.get(0)).dimension+1;
+            n.tamaño=dimensiones.get(numero);
         }else{
             n.n=new LinkedList();
             n.dimension=1;
@@ -128,7 +118,7 @@ public final class Arreglos extends Expresion{
                 case cadena:
                     l=new Literal(tipo,"");
                     break;
-                case nulo:
+                case objeto:
                     l=new Literal(tipo,null);
                     break;
             }
@@ -141,36 +131,43 @@ public final class Arreglos extends Expresion{
     
     public void Ejecutar(Expresion e,Entorno ent){
         if (((Arreglos)e).dimension!=1 && ((Arreglos)e).n!=null) {
+            int Dimension=0;
             for (Expresion e_:((Arreglos)e).n) {
                 Ejecutar(e_,ent);
+                if (e.tipo==null) {
+                    e.tipo=new Tipo(e_.tipo.tipo,"Arreglo",((Arreglos)e).dimension);
+                }else if(e.tipo.tipo!=e_.tipo.tipo){
+                    e.tipo.tipo=Tipo.EnumTipo.error;
+                    cError errora=new cError("Semantico","Error de tipos entre"+e.tipo.tipo+" y "+e_.tipo.tipo,linea,columna);
+                    ProyectCompi1.errores.add(errora); 
+                }
+                if (Dimension==0) {
+                    Dimension=((Arreglos)e_).dimension;
+                }else if(Dimension!=((Arreglos)e_).dimension){
+                    e.tipo.tipo=Tipo.EnumTipo.error;
+                    cError errora=new cError("Semantico","Error en las dimensiones del arreglo"+tipo.tipo,linea,columna);
+                    ProyectCompi1.errores.add(errora); 
+                }
             }
         }else if(((Arreglos)e).n!=null){
+            LinkedList<Expresion> temp=new LinkedList<>();
             for (Expresion e_:((Arreglos)e).n) {
-                e_=e_.getValor(ent);
-            }
-        }
-    }
-
-    public boolean Tipos(Arreglos e,Tipo tipo,int linea,int columna){
-        boolean retorno=false;
-        if (e.dimension!=1 && e.n!=null) {
-            for (Expresion e_:e.n) {
-                retorno=Tipos((Arreglos)e_,tipo,linea,columna);
-                if (!retorno) {
-                    break;
-                }
-            }
-        }else if(e.n!=null){
-            for (Expresion e_:e.n) {
-                if (tipo.tipo!=e_.tipo.tipo && (e_.tipo.tr == null ? tipo.tr == null : e_.tipo.tr.equals(tipo.tr))) {
-                    cError errora=new cError("Semantico","asignacion de tipos incompatibles "+e_.tipo+"no se puede convertir a "+tipo.tipo,linea,columna);
+                Expresion temp2=(e_.getValor(ent));
+                if (e.tipo==null) {
+                    String arreglo="Arreglo";
+                    if (!temp2.tipo.tr.equals("")){
+                        arreglo=temp2.tipo.tr;
+                    }
+                    e.tipo=new Tipo(temp2.tipo.tipo,arreglo,((Arreglos)e).dimension);
+                }else if(e.tipo.tipo!=temp2.tipo.tipo){
+                    e.tipo.tipo=Tipo.EnumTipo.error;
+                    cError errora=new cError("Semantico","Error de tipos entre"+e.tipo.tipo+" y "+temp2.tipo.tipo,linea,columna);
                     ProyectCompi1.errores.add(errora); 
-                    return false;
                 }
+                temp.add(temp2);
             }
-            retorno = true;
+            ((Arreglos)e).n=temp;
         }
-        return retorno;
     }
     
     public Expresion buscar(Arreglos e,LinkedList<Integer> numeros,int numero,int linea,int columna){
@@ -183,18 +180,12 @@ public final class Arreglos extends Expresion{
                 return (new Literal(new Tipo(Tipo.EnumTipo.error),null));
             }
         }else{
-            if (e.n.get(numero).getClass()!=Arreglos.class) {
-                try{
-                    return (new Literal(e.n.get(numeros.get(numero)).tipo,e.n.get(numeros.get(numero)).valor)); 
-                }catch(Exception ex){
-                    cError errora=new cError("Semantico","Error en al busqueda del arreglo"+tipo.tipo,linea,columna);
-                    ProyectCompi1.errores.add(errora); 
-                    return (new Literal(new Tipo(Tipo.EnumTipo.error),null));
-                }
-            }else{
-               cError errora=new cError("Semantico","Error en al busqueda del arreglo"+tipo.tipo,linea,columna);
-               ProyectCompi1.errores.add(errora); 
-               return (new Literal(new Tipo(Tipo.EnumTipo.error),null)); 
+            try{
+                return e.n.get(numeros.get(numero)); 
+            }catch(Exception ex){
+                cError errora=new cError("Semantico","Error en al busqueda del arreglo"+tipo.tipo,linea,columna);
+                ProyectCompi1.errores.add(errora); 
+                return (new Literal(new Tipo(Tipo.EnumTipo.error),null));
             }
         }
     }
@@ -226,7 +217,7 @@ public final class Arreglos extends Expresion{
     @Override
     public Expresion getValor(Entorno ent) {
         Ejecutar(this,ent);
-        Literal l=new Literal(new Tipo(Tipo.EnumTipo.cadena),"Arreglo");
+        Literal l=new Literal(this.tipo,this);
         return l;
     }
 }

@@ -19,19 +19,16 @@ import proyectcompi1.cError;
  */
 public class Instancia extends Expresion{
     
-    Tipo clase;
     LinkedList<Expresion> parametros;
-    public Entorno cent;
 
     public Instancia(Tipo clase, LinkedList<Expresion> parametros, int linea, int columna) {
-        this.clase = clase;
+        this.tipo = clase;
         this.parametros = parametros;
-        this.tipo=new Tipo(Tipo.EnumTipo.clase,clase.tr,-1);
     }
     
     @Override
     public Expresion getValor(Entorno ent) {
-        cent =new Entorno(clase.tr,null);
+        Entorno cent =new Entorno(tipo.tr,null);
         LinkedList parametros_=null;
         if (parametros!=null) {
             parametros_=new LinkedList();
@@ -39,15 +36,15 @@ public class Instancia extends Expresion{
                 parametros_.add(parametro.getValor(ent));
             }
         }
-        if (ProyectCompi1.L_clases.containsKey(clase.tr)) {
-            Clase nueva=ProyectCompi1.L_clases.get(clase.tr);
+        if (ProyectCompi1.L_clases.containsKey(tipo.tr)) {
+            Clase nueva=ProyectCompi1.L_clases.get(tipo.tr);
             nueva.param=parametros_;
             nueva.ejecutar(cent);
         }else{
-            cError errora=new cError("Semantico","'"+clase.tr+"' no existe",linea,columna);
+            cError errora=new cError("Semantico","'"+tipo.tr+"' no existe",linea,columna);
             ProyectCompi1.errores.add(errora); 
         }
-        Literal l=new Literal(new Tipo(Tipo.EnumTipo.cadena),this.getClass());
+        Literal l=new Literal(tipo,cent);
         return l;
     }
     

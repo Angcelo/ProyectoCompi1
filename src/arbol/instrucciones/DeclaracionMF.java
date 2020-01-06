@@ -39,7 +39,7 @@ public class DeclaracionMF extends Instruccion{
         this.bloque=bloque;
         this.nombre=nombre;
         this.tipo=tipo;
-        this.parametros=null;
+        this.parametros=new LinkedList();
         this.linea=linea;
         this.columna=columna;
     }
@@ -57,7 +57,7 @@ public class DeclaracionMF extends Instruccion{
         this.bloque=bloque;
         this.nombre=nombre;
         this.tipo=null;
-        this.parametros=null;
+        this.parametros=new LinkedList();
         this.linea=linea;
         this.columna=columna;
     }

@@ -108,12 +108,23 @@ public class Igual extends Expresion {
                         break;
                 }
                 break;
-            case nulo:
-            case clase:
+            case objeto:
                 switch(exp2.tipo.tipo){
                     case nulo:
-                    case clase:
-                        comp = exp1.tipo.tipo==Tipo.EnumTipo.nulo && exp2.tipo.tipo==Tipo.EnumTipo.nulo;
+                        comp = exp1.valor==null && exp2.valor==null;
+                        literal = new Literal (new Tipo (Tipo.EnumTipo.booleano), comp.toString()) ;
+                        break;   
+                    case objeto:
+                        comp= exp1.valor==exp2.valor;
+                        literal = new Literal (new Tipo (Tipo.EnumTipo.booleano), comp.toString()) ;
+                        break;
+                }
+                break;
+            case nulo:
+                switch(exp2.tipo.tipo){
+                    case nulo:
+                    case objeto:
+                        comp = exp1.valor==null && exp2.valor==null;
                         literal = new Literal (new Tipo (Tipo.EnumTipo.booleano), comp.toString()) ;
                         break;   
                 }

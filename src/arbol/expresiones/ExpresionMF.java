@@ -38,10 +38,11 @@ public class ExpresionMF extends Expresion{
         Entorno entMF=new Entorno(id,ent);
         String id_=id+"#";
         if (argumentos!=null) {
-            argumentos.forEach((argumento) -> {
-                argumentos_.add(argumento.getValor(ent));
-            });
-            id_ = argumentos_.stream().map((argumento) -> argumento.tipo.tipo.toString()).reduce(id_, String::concat);
+            for(Expresion argumento:argumentos){
+                Expresion e_=argumento.getValor(ent.anterior);
+                id_+=e_.tipo.tipo.toString();
+                argumentos_.add(e_);
+            }
         }
         Simbolo sim=ent.buscar(id_, linea, columna, "El metodo o funcion");
         if (sim!=null) {
@@ -61,9 +62,13 @@ public class ExpresionMF extends Expresion{
                 }
             }
             retorno=((SimboloMF)sim).getBloque().ejecutar(entMF);
-            if (retorno!=null) {           
-                ProyectCompi1.pilaMF.pop();
-                return (Literal)retorno;
+            if (retorno!=null) { 
+                if (retorno instanceof Literal) {
+                    if(((Literal) retorno).tipo.tipo!=Tipo.EnumTipo.error && ((Literal) retorno).tipo.tipo!=Tipo.EnumTipo.nulo ){
+                        ProyectCompi1.pilaMF.pop();
+                        return (Literal)retorno;
+                    }
+                }
             }
             ProyectCompi1.pilaMF.pop();
         }

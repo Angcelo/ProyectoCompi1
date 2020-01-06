@@ -211,9 +211,7 @@ public class fmrPrincipal extends javax.swing.JFrame {
                     texto+=linea+"\n";
                 }
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(fmrPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(fmrPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         this.addHoja(archivo.getName(),texto,archivo.getPath());
@@ -463,7 +461,7 @@ public class fmrPrincipal extends javax.swing.JFrame {
             }
 
         } catch (Exception ex) {
-            System.out.println(ex);
+            Logger.getLogger(fmrPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             cError errora=new cError("Ejecucion","Error fatal en compilación de entrada.",0,0);
             ProyectCompi1.errores.add(errora); 
         }

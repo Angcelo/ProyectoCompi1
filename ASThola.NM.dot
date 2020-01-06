@@ -1,6 +1,0 @@
-digraph matriz{ 
- rankdir=LR; 
-node0 [label="null",height=0.5];
-
-node1 [label="Aceptacion",height=0.5];
-}

@@ -38,17 +38,17 @@ public class Negativo extends Expresion{
         
         switch (exp.tipo.tipo) {
             case entero:
-                int restaint = 0 - Integer.parseInt(str);
+                int restaint = (int)Double.parseDouble(str)*-1;
                 literal = new Literal (new Tipo(Tipo.EnumTipo.entero) , restaint);
                 break;
                 
             case doble:
-                double restadoble = 0.0 - Double.parseDouble(str);
+                double restadoble = Double.parseDouble(str)*-1;
                 literal = new Literal (new Tipo (Tipo.EnumTipo.doble), restadoble);
                 break;
                 
             case caracter:
-                int restachar = (int)0 - (int) str.charAt(0);
+                int restachar = (int)str.charAt(0)*-1;
                 literal = new Literal (new Tipo (Tipo.EnumTipo.entero), restachar) ;
                 break;
                 
